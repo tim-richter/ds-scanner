@@ -1,0 +1,7 @@
+#!/bin/sh
+
+rimraf dist/
+
+tsc
+
+copyfiles -a -u 1 src/features/ui/**/* src/features/ui/**/*.html src/features/ui/**/vite.config.ts dist/

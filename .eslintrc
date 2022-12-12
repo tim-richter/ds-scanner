@@ -1,0 +1,35 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "extends": ["airbnb", "airbnb-typescript", "prettier"],
+  "plugins": ["@typescript-eslint","prettier"],
+  "env": {
+    "node": true
+  },
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "import/no-extraneous-dependencies": ["error", {
+      "devDependencies": [
+        "**/*.test.{js,jsx,ts,tsx}",
+        "**/*.spec.{js,jsx,ts,tsx}",
+        "**/*.stories.{js,jsx,ts,tsx}",
+        "test/**/*",
+        "cypress/**/*",
+        "plopfile.mjs",
+        "cypress.config.ts",
+        "vitest.config.ts"
+      ]
+    }],
+    "prettier/prettier": "error",
+    "no-prototype-builtins": "off",
+    "import/prefer-default-export": "off",
+    "consistent-return": "off"
+  },
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    }
+  }
+}
