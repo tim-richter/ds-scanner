@@ -27,7 +27,7 @@ it('should use a default value for the config path if none was given', () => {
 
   expect(() => getConfig()).toThrowError();
   expect(spy).toHaveBeenCalledWith(
-    path.join(__dirname, 'ds-scanner.config.json')
+    path.join(process.cwd(), 'ds-scanner.config.json')
   );
 });
 
