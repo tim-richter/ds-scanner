@@ -8,7 +8,7 @@ import http from 'http';
 import finalhandler from 'finalhandler';
 import { ParsedArgs } from './parseArguments';
 import { getConfig } from './features/config';
-import { scan } from './features/parser';
+import { scan } from './features/report';
 
 const filename = fileURLToPath(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/naming-convention

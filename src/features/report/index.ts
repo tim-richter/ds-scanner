@@ -2,7 +2,7 @@ import { parse, TSESTree } from '@typescript-eslint/typescript-estree';
 import getObjectPath from 'dlv';
 import { dset } from 'dset';
 import { walk } from 'estree-walker';
-import { isJSXAttribute, isJSXOpeningElement } from './util';
+import { isJSXAttribute, isJSXOpeningElement } from './util.js';
 
 const parseOptions = {
   loc: true,

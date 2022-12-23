@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { scan } from '.';
+import { scan } from './index.js';
 
 it('should scan components correctly', () => {
   const code = `
