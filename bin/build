@@ -4,5 +4,4 @@ rimraf dist/
 rimraf dist-tsc/
 
 esbuild src/index.ts --bundle --outdir=dist --platform=node --format=esm --external:./node_modules/*
-
-copyfiles -a -u 1 src/features/ui/**/* src/features/ui/**/*.html src/features/ui/**/vite.config.ts dist/
+pnpm ui:build

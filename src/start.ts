@@ -1,9 +1,11 @@
-import { createServer } from 'vite';
 import path, { dirname } from 'path';
 import { fdir, PathsOutput } from 'fdir';
 import fs from 'fs-extra';
 import { dset } from 'dset';
 import { fileURLToPath } from 'url';
+import serveStatic from 'serve-static';
+import http from 'http';
+import finalhandler from 'finalhandler';
 import { ParsedArgs } from './parseArguments';
 import { getConfig } from './features/config';
 import { scan } from './features/parser';
@@ -39,21 +41,17 @@ export const start = async (args: ParsedArgs) => {
     dset(report, file, scannedCode);
   });
 
-  fs.writeJSON(
-    path.join(__dirname, 'features/ui/public/scan-data.json'),
-    report
-  );
+  fs.writeJSON(path.join(__dirname, 'scan-data.json'), report);
 
-  const server = await createServer({
-    configFile: path.join(__dirname, 'features/ui/vite.config.ts'),
-    root: path.join(__dirname, 'features/ui'),
-    server: {
-      port: 5020,
-      host: '127.0.0.1',
-      open: true,
-    },
+  const serve = serveStatic(__dirname, {
+    index: ['index.html', 'index.htm'],
   });
-  await server.listen();
 
-  server.printUrls();
+  // Create server
+  const server = http.createServer((req, res) => {
+    serve(req, res, finalhandler(req, res));
+  });
+
+  // Listen
+  server.listen(3000);
 };
