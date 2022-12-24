@@ -23,6 +23,11 @@ export const decorators = [
     <QueryProvider>
       <Story />
     </QueryProvider>
+  ),
+  (Story) => (
+    <div data-theme="night">
+      <Story />
+    </div>
   )
 ];
 
