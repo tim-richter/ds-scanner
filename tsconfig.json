@@ -15,7 +15,9 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "react",
-    "types": []
+    "types": [],
+    "composite": false,
+    "preserveSymlinks": true
   },
   "include": [
     "src/types/**/*.d.ts",

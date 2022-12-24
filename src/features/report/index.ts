@@ -205,7 +205,7 @@ export const makeReport = async (files: PathsOutput) => {
 
     report.push(scannedCode);
 
-    const fileResult = await prisma.file.create({
+    await prisma.file.create({
       data: {
         path: file,
         components: {
@@ -224,7 +224,6 @@ export const makeReport = async (files: PathsOutput) => {
         },
       },
     });
-    console.log(fileResult);
   });
 
   return report;
