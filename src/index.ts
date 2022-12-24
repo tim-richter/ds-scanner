@@ -1,5 +1,5 @@
-import { parseArguments } from './parseArguments';
-import { start } from './start';
+import { parseArguments } from './parseArguments.js';
+import { start } from './start.js';
 
 const init = async () => {
   const parsedArgs = await parseArguments();

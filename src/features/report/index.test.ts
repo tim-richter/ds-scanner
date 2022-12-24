@@ -1,21 +1,27 @@
-import { expect, it } from 'vitest';
-import { scan } from './index.js';
+import { expect, it, describe, afterEach } from 'vitest';
+import mock from 'mock-fs';
+import { prismaMock } from '../../../test/setupTests.js';
+import { makeReport, scan } from './index.js';
 
-it('should scan components correctly', () => {
-  const code = `
-    import { Button } from 'my-library';
+afterEach(() => {
+  mock.restore();
+});
 
-    export const CustomButton = () => {
-      return <Button variant="blue" />;
-    }
-  `;
+describe('scan', () => {
+  it('should scan components correctly', () => {
+    const code = `
+      import { Button } from 'my-library';
+  
+      export const CustomButton = () => {
+        return <Button variant="blue" />;
+      }
+    `;
 
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
 
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "Button": {
-        "instances": [
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
           {
             "importInfo": {
               "importType": "ImportSpecifier",
@@ -24,42 +30,45 @@ it('should scan components correctly', () => {
               "moduleName": "my-library",
             },
             "location": {
-              "file": "src/test/Component.tsx",
+              "end": {
+                "column": 22,
+                "line": 5,
+              },
               "start": {
-                "column": 14,
+                "column": 16,
                 "line": 5,
               },
             },
+            "name": "Button",
             "props": {
               "variant": "blue",
             },
             "propsSpread": false,
           },
         ],
-      },
-    }
-  `);
-});
-
-it('should scan components that have a js value as prop', () => {
-  const code = `
-    import { Button } from 'my-library';
-
-    export const CustomButton = () => {
-      const data = {
-        test: 'test',
+        "filePath": "src/test/Component.tsx",
       }
+    `);
+  });
 
-      return <Button variant="blue" data={data} />;
-    }
-  `;
+  it('should scan components that have a js value as prop', () => {
+    const code = `
+      import { Button } from 'my-library';
+  
+      export const CustomButton = () => {
+        const data = {
+          test: 'test',
+        }
+  
+        return <Button variant="blue" data={data} />;
+      }
+    `;
 
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
 
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "Button": {
-        "instances": [
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
           {
             "importInfo": {
               "importType": "ImportSpecifier",
@@ -68,12 +77,16 @@ it('should scan components that have a js value as prop', () => {
               "moduleName": "my-library",
             },
             "location": {
-              "file": "src/test/Component.tsx",
+              "end": {
+                "column": 22,
+                "line": 9,
+              },
               "start": {
-                "column": 14,
+                "column": 16,
                 "line": 9,
               },
             },
+            "name": "Button",
             "props": {
               "data": "(Identifier)",
               "variant": "blue",
@@ -81,30 +94,29 @@ it('should scan components that have a js value as prop', () => {
             "propsSpread": false,
           },
         ],
-      },
-    }
-  `);
-});
-
-it('should set propsSpread to true if the component spreads its props', () => {
-  const code = `
-    import { Button } from 'my-library';
-
-    export const CustomButton = () => {
-      const data = {
-        test: 'test',
+        "filePath": "src/test/Component.tsx",
       }
+    `);
+  });
 
-      return <Button variant="blue" {...data} />;
-    }
-  `;
+  it('should set propsSpread to true if the component spreads its props', () => {
+    const code = `
+      import { Button } from 'my-library';
+  
+      export const CustomButton = () => {
+        const data = {
+          test: 'test',
+        }
+  
+        return <Button variant="blue" {...data} />;
+      }
+    `;
 
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
 
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "Button": {
-        "instances": [
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
           {
             "importInfo": {
               "importType": "ImportSpecifier",
@@ -113,122 +125,131 @@ it('should set propsSpread to true if the component spreads its props', () => {
               "moduleName": "my-library",
             },
             "location": {
-              "file": "src/test/Component.tsx",
+              "end": {
+                "column": 22,
+                "line": 9,
+              },
               "start": {
-                "column": 14,
+                "column": 16,
                 "line": 9,
               },
             },
+            "name": "Button",
             "props": {
               "variant": "blue",
             },
             "propsSpread": true,
           },
         ],
-      },
-    }
-  `);
-});
-
-it('should get the correct component when spreading the component name', () => {
-  const code = `
-    import MyLibrary from 'my-library';
-
-    const { Button } = MyLibrary;
-
-    export const CustomButton = () => {
-      const data = {
-        test: 'test',
+        "filePath": "src/test/Component.tsx",
       }
+    `);
+  });
 
-      return <Button variant="blue" {...data} />;
-    }
-  `;
+  it('should get the correct component when spreading the component name', () => {
+    const code = `
+      import MyLibrary from 'my-library';
+  
+      const { Button } = MyLibrary;
+  
+      export const CustomButton = () => {
+        const data = {
+          test: 'test',
+        }
+  
+        return <Button variant="blue" {...data} />;
+      }
+    `;
 
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
 
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "Button": {
-        "instances": [
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
           {
             "location": {
-              "file": "src/test/Component.tsx",
+              "end": {
+                "column": 22,
+                "line": 11,
+              },
               "start": {
-                "column": 14,
+                "column": 16,
                 "line": 11,
               },
             },
+            "name": "Button",
             "props": {
               "variant": "blue",
             },
             "propsSpread": true,
           },
         ],
-      },
-    }
-  `);
-});
-
-it('should only include jsx component imports in the report', () => {
-  const code = `
-    import MyLibrary from 'my-library';
-    import { bla } from '../bla';
-    import Bla from 'bla';
-
-    const { Button } = MyLibrary;
-
-    export const CustomButton = () => {
-      const data = {
-        test: 'test',
+        "filePath": "src/test/Component.tsx",
       }
+    `);
+  });
 
-      return <Button variant="blue" {...data} />;
-    }
-  `;
+  it('should only include jsx component imports in the report', () => {
+    const code = `
+      import MyLibrary from 'my-library';
+      import { bla } from '../bla';
+      import Bla from 'bla';
+  
+      const { Button } = MyLibrary;
+  
+      export const CustomButton = () => {
+        const data = {
+          test: 'test',
+        }
+  
+        return <Button variant="blue" {...data} />;
+      }
+    `;
 
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
 
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "Button": {
-        "instances": [
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
           {
             "location": {
-              "file": "src/test/Component.tsx",
+              "end": {
+                "column": 22,
+                "line": 13,
+              },
               "start": {
-                "column": 14,
+                "column": 16,
                 "line": 13,
               },
             },
+            "name": "Button",
             "props": {
               "variant": "blue",
             },
             "propsSpread": true,
           },
         ],
-      },
-    }
-  `);
-});
+        "filePath": "src/test/Component.tsx",
+      }
+    `);
+  });
 
-it('should parse literal values from JSXExpressionContainers', () => {
-  const code = `
-    import { Button } from 'my-library';
+  it('should parse literal values from JSXExpressionContainers', () => {
+    const code = `
+      import { Button } from 'my-library';
+  
+      export const CustomButton = () => {
+        const name = 'world';
+  
+        return <Button variant="blue"  text={"name"} />;
+      } 
+    `;
 
-    export const CustomButton = () => {
-      const name = 'world';
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
 
-      return <Button variant="blue"  text={"name"} />;
-    } 
-  `;
-
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
-
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "Button": {
-        "instances": [
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
           {
             "importInfo": {
               "importType": "ImportSpecifier",
@@ -237,12 +258,16 @@ it('should parse literal values from JSXExpressionContainers', () => {
               "moduleName": "my-library",
             },
             "location": {
-              "file": "src/test/Component.tsx",
+              "end": {
+                "column": 22,
+                "line": 7,
+              },
               "start": {
-                "column": 14,
+                "column": 16,
                 "line": 7,
               },
             },
+            "name": "Button",
             "props": {
               "text": "name",
               "variant": "blue",
@@ -250,133 +275,273 @@ it('should parse literal values from JSXExpressionContainers', () => {
             "propsSpread": false,
           },
         ],
-      },
-    }
-  `);
-});
-
-it('should desctructure the name of the component if it was used with dot syntax', () => {
-  const code = `
-    import MyLibrary from 'my-library';
-    import { bla } from '../bla';
-    import Bla from 'bla';
-
-    export const CustomButton = () => {
-      const data = {
-        test: 'test',
+        "filePath": "src/test/Component.tsx",
       }
+    `);
+  });
 
-      return <MyLibrary.Button variant="blue" {...data} />;
-    }
-  `;
+  it('should desctructure the name of the component if it was used with dot syntax', () => {
+    const code = `
+      import MyLibrary from 'my-library';
+      import { bla } from '../bla';
+      import Bla from 'bla';
+  
+      export const CustomButton = () => {
+        const data = {
+          test: 'test',
+        }
+  
+        return <MyLibrary.Button variant="blue" {...data} />;
+      }
+    `;
 
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
 
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "MyLibrary": {
-        "components": {
-          "Button": {
-            "instances": [
-              {
-                "importInfo": {
-                  "importType": "ImportDefaultSpecifier",
-                  "local": "MyLibrary",
-                  "moduleName": "my-library",
-                },
-                "location": {
-                  "file": "src/test/Component.tsx",
-                  "start": {
-                    "column": 14,
-                    "line": 11,
-                  },
-                },
-                "props": {
-                  "variant": "blue",
-                },
-                "propsSpread": true,
-              },
-            ],
-          },
-        },
-      },
-    }
-  `);
-});
-
-it('should scan jsx member expressions', () => {
-  const code = `
-    export const CustomButton = ({ as }) => {
-      const As = as || 'div'
-
-      return <As variant="blue" {...data} />;
-    }
-  `;
-
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
-
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "As": {
-        "instances": [
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
           {
+            "importInfo": {
+              "importType": "ImportDefaultSpecifier",
+              "local": "MyLibrary",
+              "moduleName": "my-library",
+            },
             "location": {
-              "file": "src/test/Component.tsx",
+              "end": {
+                "column": 32,
+                "line": 11,
+              },
               "start": {
-                "column": 14,
-                "line": 5,
+                "column": 16,
+                "line": 11,
               },
             },
+            "name": "MyLibrary.Button",
             "props": {
               "variant": "blue",
             },
             "propsSpread": true,
           },
         ],
-      },
-    }
-  `);
+        "filePath": "src/test/Component.tsx",
+      }
+    `);
+  });
+
+  it('should scan jsx member expressions', () => {
+    const code = `
+      export const CustomButton = ({ as }) => {
+        const As = as || 'div'
+  
+        return <As variant="blue" {...data} />;
+      }
+    `;
+
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
+          {
+            "location": {
+              "end": {
+                "column": 18,
+                "line": 5,
+              },
+              "start": {
+                "column": 16,
+                "line": 5,
+              },
+            },
+            "name": "As",
+            "props": {
+              "variant": "blue",
+            },
+            "propsSpread": true,
+          },
+        ],
+        "filePath": "src/test/Component.tsx",
+      }
+    `);
+  });
+
+  it('should scan jsx namespaced name', () => {
+    const code = `
+      import * as mynamespace from 'my-namespace';
+  
+      export const CustomButton = ({ as }) => {
+        return <mynamespace:Menu variant="blue" />
+      }
+    `;
+
+    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+
+    expect(ast).toMatchInlineSnapshot(`
+      {
+        "components": [
+          {
+            "importInfo": {
+              "importType": "ImportNamespaceSpecifier",
+              "local": "mynamespace",
+              "moduleName": "my-namespace",
+            },
+            "location": {
+              "end": {
+                "column": 32,
+                "line": 5,
+              },
+              "start": {
+                "column": 16,
+                "line": 5,
+              },
+            },
+            "name": "mynamespace.Menu",
+            "props": {
+              "variant": "blue",
+            },
+            "propsSpread": false,
+          },
+        ],
+        "filePath": "src/test/Component.tsx",
+      }
+    `);
+  });
 });
 
-it('should scan jsx namespaced name', () => {
-  const code = `
-    import * as mynamespace from 'my-namespace';
+describe('report', () => {
+  it('should read a file and return the report for the file', async () => {
+    const code = `
+      import { Button } from 'my-library';
+  
+      export const CustomButton = () => {
+        return (
+          <>
+            <Button variant="blue" />
+            <Button variant="yellow" />
+          </>
+          );
+      }
+    `;
 
-    export const CustomButton = ({ as }) => {
-      return <mynamespace:Menu variant="blue" />
-    }
-  `;
+    mock({
+      'Component.tsx': code,
+    });
 
-  const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const report = await makeReport(['Component.tsx']);
 
-  expect(ast).toMatchInlineSnapshot(`
-    {
-      "mynamespace": {
-        "components": {
-          "Menu": {
-            "instances": [
+    expect(report).toMatchInlineSnapshot(`
+      [
+        {
+          "components": [
+            {
+              "importInfo": {
+                "importType": "ImportSpecifier",
+                "imported": "Button",
+                "local": "Button",
+                "moduleName": "my-library",
+              },
+              "location": {
+                "end": {
+                  "column": 19,
+                  "line": 7,
+                },
+                "start": {
+                  "column": 13,
+                  "line": 7,
+                },
+              },
+              "name": "Button",
+              "props": {
+                "variant": "blue",
+              },
+              "propsSpread": false,
+            },
+            {
+              "importInfo": {
+                "importType": "ImportSpecifier",
+                "imported": "Button",
+                "local": "Button",
+                "moduleName": "my-library",
+              },
+              "location": {
+                "end": {
+                  "column": 19,
+                  "line": 8,
+                },
+                "start": {
+                  "column": 13,
+                  "line": 8,
+                },
+              },
+              "name": "Button",
+              "props": {
+                "variant": "yellow",
+              },
+              "propsSpread": false,
+            },
+          ],
+          "filePath": "Component.tsx",
+        },
+      ]
+    `);
+  });
+
+  it('should make requests to db', async () => {
+    const code = `
+      import { Button } from 'my-library';
+  
+      export const CustomButton = () => {
+        return (
+          <>
+            <Button variant="blue" />
+            <Button variant="yellow" />
+          </>
+          );
+      }
+    `;
+
+    mock({
+      'Component.tsx': code,
+    });
+
+    await makeReport(['Component.tsx']);
+
+    expect(prismaMock.file.create.mock.calls[0][0]).toMatchInlineSnapshot(
+      `
+      {
+        "data": {
+          "components": {
+            "create": [
               {
-                "importInfo": {
-                  "importType": "ImportNamespaceSpecifier",
-                  "local": "mynamespace",
-                  "moduleName": "my-namespace",
-                },
-                "location": {
-                  "file": "src/test/Component.tsx",
-                  "start": {
-                    "column": 14,
-                    "line": 5,
-                  },
-                },
-                "props": {
-                  "variant": "blue",
-                },
+                "importType": "ImportSpecifier",
+                "imported": "Button",
+                "local": "Button",
+                "locationEndColumn": 19,
+                "locationEndLine": 7,
+                "locationStartColumn": 13,
+                "locationStartLine": 7,
+                "moduleName": "my-library",
+                "name": "Button",
+                "propsSpread": false,
+              },
+              {
+                "importType": "ImportSpecifier",
+                "imported": "Button",
+                "local": "Button",
+                "locationEndColumn": 19,
+                "locationEndLine": 8,
+                "locationStartColumn": 13,
+                "locationStartLine": 8,
+                "moduleName": "my-library",
+                "name": "Button",
                 "propsSpread": false,
               },
             ],
           },
+          "path": "Component.tsx",
         },
-      },
-    }
-  `);
+      }
+    `
+    );
+  });
 });

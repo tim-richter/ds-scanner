@@ -2,7 +2,7 @@ import { afterEach, expect, it, vi, describe } from 'vitest';
 import mock from 'mock-fs';
 import fs from 'fs-extra';
 import path from 'path';
-import { getConfig } from '.';
+import { getConfig } from './index.js';
 
 afterEach(() => {
   mock.restore();

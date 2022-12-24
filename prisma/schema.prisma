@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model File {
+  id         Int         @id @default(autoincrement())
+  path       String      @unique
+  components Component[]
+}
+
+model Component {
+  id        Int        @id @default(autoincrement())
+  name      String?
+  propsSpread Boolean
+  props       Prop[]
+  importType String?
+  imported String?
+  local String?
+  moduleName String?
+  locationEndColumn Int
+  locationEndLine Int
+  locationStartColumn Int
+  locationStartLine Int
+  File      File?      @relation(fields: [fileId], references: [id])
+  fileId    Int?
+}
+
+model Prop {
+  id         Int       @id @default(autoincrement())
+  name       String
+  value      String
+  Component   Component? @relation(fields: [componentId], references: [id])
+  componentId Int?
+}

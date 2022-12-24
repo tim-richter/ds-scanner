@@ -1,14 +1,13 @@
 import path, { dirname } from 'path';
 import { fdir, PathsOutput } from 'fdir';
 import fs from 'fs-extra';
-import { dset } from 'dset';
 import { fileURLToPath } from 'url';
 import serveStatic from 'serve-static';
 import http from 'http';
 import finalhandler from 'finalhandler';
-import { ParsedArgs } from './parseArguments';
-import { getConfig } from './features/config';
-import { scan } from './features/report';
+import { ParsedArgs } from './parseArguments.js';
+import { getConfig } from './features/config/index.js';
+import { makeReport } from './features/report/index.js';
 
 const filename = fileURLToPath(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -32,15 +31,7 @@ export const start = async (args: ParsedArgs) => {
     process.exit(1);
   }
 
-  const report = {};
-  files.forEach((file) => {
-    const code = fs.readFileSync(file, 'utf8');
-
-    const scannedCode = scan({ code, filePath: file });
-
-    dset(report, file, scannedCode);
-  });
-
+  const report = await makeReport(files);
   fs.writeJSON(path.join(__dirname, 'scan-data.json'), report);
 
   const serve = serveStatic(__dirname, {

@@ -1,8 +1,41 @@
 import { parse, TSESTree } from '@typescript-eslint/typescript-estree';
-import getObjectPath from 'dlv';
-import { dset } from 'dset';
 import { walk } from 'estree-walker';
+import { PathsOutput } from 'fdir';
+import fs from 'fs-extra';
+import { prisma } from '../../prisma.js';
 import { isJSXAttribute, isJSXOpeningElement } from './util.js';
+
+interface ImportInfo {
+  imported?: string;
+  local: string;
+  moduleName: string;
+  importType:
+    | TSESTree.AST_NODE_TYPES.ImportSpecifier
+    | TSESTree.AST_NODE_TYPES.ImportDefaultSpecifier
+    | TSESTree.AST_NODE_TYPES.ImportNamespaceSpecifier;
+}
+
+interface Component {
+  name?: string;
+  importInfo?: ImportInfo;
+  location: {
+    end: {
+      column: number;
+      line: number;
+    };
+    start: {
+      column: number;
+      line: number;
+    };
+  };
+  props: Record<string, any>;
+  propsSpread: boolean;
+}
+
+interface ScanResult {
+  filePath?: string;
+  components?: Array<Component>;
+}
 
 const parseOptions = {
   loc: true,
@@ -52,19 +85,19 @@ function getPropValue(node: TSESTree.JSXExpression | TSESTree.Literal) {
 
 interface GetInstanceInfo {
   node: TSESTree.JSXOpeningElement;
-  filePath: string;
-  importInfo: Record<string, any>;
+  importInfo?: ImportInfo;
 }
-function getInstanceInfo({ node, filePath, importInfo }: GetInstanceInfo) {
+
+function getInstanceInfo({ node, importInfo }: GetInstanceInfo): Component {
   const { attributes } = node;
 
-  const result: Record<string, any> = {
+  const result: Component = {
     ...(importInfo !== undefined && { importInfo }),
     props: {},
     propsSpread: false,
     location: {
-      file: filePath,
       start: node.name.loc.start,
+      end: node.name.loc.end,
     },
   };
 
@@ -85,23 +118,22 @@ function getInstanceInfo({ node, filePath, importInfo }: GetInstanceInfo) {
   return result;
 }
 
-const getComponentName = ({ imported, local }: ImportsMapValue) =>
-  imported || local;
-
 type ScanArgs = {
   code: string;
   filePath: string;
 };
 
-export function scan({ code, filePath }: ScanArgs) {
-  const report = {};
+export function scan({ code, filePath }: ScanArgs): ScanResult {
+  const report: ScanResult = {
+    components: [],
+  };
 
   const ast = parse(code, parseOptions);
 
   const importsMap: ImportsMap = {};
 
   walk(ast, {
-    enter(node) {
+    enter(node: any) {
       if (node.type === 'ImportDeclaration') {
         const { source, specifiers } = node as TSESTree.ImportDeclaration;
 
@@ -138,44 +170,62 @@ export function scan({ code, filePath }: ScanArgs) {
         });
       }
     },
-    leave(node) {
+    leave(node: any) {
       if (isJSXOpeningElement(node)) {
         const { name } = node;
+
+        report.filePath = filePath;
 
         const nameFromAst = getComponentNameFromAST(name);
 
         const nameParts = nameFromAst.split('.');
 
-        const [firstPart, ...restParts] = nameParts;
-
-        const actualFirstPart = importsMap[firstPart]
-          ? getComponentName(importsMap[firstPart])
-          : firstPart;
-
-        const componentParts = [actualFirstPart, ...restParts];
-
-        const componentPath = componentParts.join('.components.');
-        let componentInfo = getObjectPath(report, componentPath);
-
-        if (!componentInfo) {
-          componentInfo = {};
-          dset(report, componentPath, componentInfo);
-        }
-
-        if (!componentInfo.instances) {
-          componentInfo.instances = [];
-        }
+        const [firstPart] = nameParts;
 
         const info = getInstanceInfo({
           node,
-          filePath,
           importInfo: importsMap[firstPart],
         });
 
-        componentInfo.instances.push(info);
+        report.components?.push({ name: nameFromAst, ...info });
       }
     },
   });
 
   return report;
 }
+
+export const makeReport = async (files: PathsOutput) => {
+  const report: Array<Record<string, any>> = [];
+
+  files.forEach(async (file) => {
+    const code = fs.readFileSync(file, 'utf8');
+
+    const scannedCode = scan({ code, filePath: file });
+
+    report.push(scannedCode);
+
+    const fileResult = await prisma.file.create({
+      data: {
+        path: file,
+        components: {
+          create: scannedCode.components?.map((component) => ({
+            name: component.name,
+            propsSpread: component.propsSpread,
+            importType: component.importInfo?.importType as string,
+            imported: component.importInfo?.imported,
+            local: component.importInfo?.local,
+            moduleName: component.importInfo?.moduleName,
+            locationEndColumn: component.location.end.column,
+            locationEndLine: component.location.end.line,
+            locationStartColumn: component.location.start.column,
+            locationStartLine: component.location.start.line,
+          })),
+        },
+      },
+    });
+    console.log(fileResult);
+  });
+
+  return report;
+};

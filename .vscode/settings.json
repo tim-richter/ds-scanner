@@ -3,5 +3,6 @@
     "dset",
     "estree",
     "finalhandler"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
