@@ -10,6 +10,8 @@ export const Default = () => (
       <HeaderLink to="/components">Components</HeaderLink>
     </Header>
 
-    <Outlet />
+    <div className="h-[calc(100vh-64px)]">
+      <Outlet />
+    </div>
   </>
 );
