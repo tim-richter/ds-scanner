@@ -1,9 +1,10 @@
 import { parse, TSESTree } from '@typescript-eslint/typescript-estree';
 import { walk } from 'estree-walker';
-import { PathsOutput } from 'fdir';
 import fs from 'fs-extra';
 import { prisma } from '../../prisma.js';
+import { ConfigSchema } from '../config/index.js';
 import { isJSXAttribute, isJSXOpeningElement } from './util.js';
+import { scan } from './scan.js';
 
 interface ImportInfo {
   imported?: string;
@@ -123,7 +124,7 @@ type ScanArgs = {
   filePath: string;
 };
 
-export function scan({ code, filePath }: ScanArgs): ScanResult {
+export function scanAST({ code, filePath }: ScanArgs): ScanResult {
   const report: ScanResult = {
     components: [],
   };
@@ -182,6 +183,8 @@ export function scan({ code, filePath }: ScanArgs): ScanResult {
 
         const [firstPart] = nameParts;
 
+        if (!firstPart) return;
+
         const info = getInstanceInfo({
           node,
           importInfo: importsMap[firstPart],
@@ -195,13 +198,15 @@ export function scan({ code, filePath }: ScanArgs): ScanResult {
   return report;
 }
 
-export const makeReport = async (files: PathsOutput) => {
+export const makeReport = async (config: ConfigSchema) => {
+  const files = scan(config.crawlFrom);
+
   const report: Array<Record<string, any>> = [];
 
   files.forEach(async (file) => {
     const code = fs.readFileSync(file, 'utf8');
 
-    const scannedCode = scan({ code, filePath: file });
+    const scannedCode = scanAST({ code, filePath: file });
 
     report.push(scannedCode);
 

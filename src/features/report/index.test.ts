@@ -1,13 +1,13 @@
-import { expect, it, describe, afterEach } from 'vitest';
+import { expect, it, describe, afterEach, vi } from 'vitest';
 import mock from 'mock-fs';
 import { prismaMock } from '../../../test/setupTests.js';
-import { makeReport, scan } from './index.js';
+import { makeReport, scanAST } from './index.js';
 
 afterEach(() => {
   mock.restore();
 });
 
-describe('scan', () => {
+describe('scanAST', () => {
   it('should scan components correctly', () => {
     const code = `
       import { Button } from 'my-library';
@@ -17,7 +17,7 @@ describe('scan', () => {
       }
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -67,7 +67,7 @@ describe('scan', () => {
       }
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -121,7 +121,7 @@ describe('scan', () => {
       }
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -173,7 +173,7 @@ describe('scan', () => {
       }
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -221,7 +221,7 @@ describe('scan', () => {
       }
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -263,7 +263,7 @@ describe('scan', () => {
       } 
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -304,7 +304,7 @@ describe('scan', () => {
     `);
   });
 
-  it('should desctructure the name of the component if it was used with dot syntax', () => {
+  it('should destructure the name of the component if it was used with dot syntax', () => {
     const code = `
       import MyLibrary from 'my-library';
       import { bla } from '../bla';
@@ -319,7 +319,7 @@ describe('scan', () => {
       }
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -364,7 +364,7 @@ describe('scan', () => {
       }
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -404,7 +404,7 @@ describe('scan', () => {
       }
     `;
 
-    const ast = scan({ code, filePath: 'src/test/Component.tsx' });
+    const ast = scanAST({ code, filePath: 'src/test/Component.tsx' });
 
     expect(ast).toMatchInlineSnapshot(`
       {
@@ -442,6 +442,19 @@ describe('scan', () => {
 });
 
 describe('report', () => {
+  it('should exit with an error if no files were found', async () => {
+    process.exit = vi.fn();
+
+    const code = `test`;
+    mock({
+      '/mock/Component.tsx': code,
+    });
+
+    await makeReport({ crawlFrom: '/notexist/' });
+
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
   it('should read a file and return the report for the file', async () => {
     const code = `
       import { Button } from 'my-library';
@@ -457,10 +470,10 @@ describe('report', () => {
     `;
 
     mock({
-      'Component.tsx': code,
+      '/mock/Component.tsx': code,
     });
 
-    const report = await makeReport(['Component.tsx']);
+    const report = await makeReport({ crawlFrom: '/mock/' });
 
     expect(report).toMatchInlineSnapshot(`
       [
@@ -519,7 +532,7 @@ describe('report', () => {
               "propsSpread": false,
             },
           ],
-          "filePath": "Component.tsx",
+          "filePath": "/mock/Component.tsx",
         },
       ]
     `);
@@ -540,63 +553,73 @@ describe('report', () => {
     `;
 
     mock({
-      'Component.tsx': code,
+      '/mock/Component.tsx': code,
     });
 
-    await makeReport(['Component.tsx']);
+    await makeReport({ crawlFrom: '/mock/' });
 
-    expect(prismaMock.file.create.mock.calls[0][0]).toMatchInlineSnapshot(
-      `
-      {
-        "data": {
-          "components": {
-            "create": [
-              {
-                "importType": "ImportSpecifier",
-                "imported": "Button",
-                "local": "Button",
-                "locationEndColumn": 19,
-                "locationEndLine": 7,
-                "locationStartColumn": 13,
-                "locationStartLine": 7,
-                "moduleName": "my-library",
-                "name": "Button",
-                "props": {
+    expect(prismaMock.file.create).toMatchInlineSnapshot(`
+      [MockFunction spy] {
+        "calls": [
+          [
+            {
+              "data": {
+                "components": {
                   "create": [
                     {
-                      "name": "variant",
-                      "value": "blue",
+                      "importType": "ImportSpecifier",
+                      "imported": "Button",
+                      "local": "Button",
+                      "locationEndColumn": 19,
+                      "locationEndLine": 7,
+                      "locationStartColumn": 13,
+                      "locationStartLine": 7,
+                      "moduleName": "my-library",
+                      "name": "Button",
+                      "props": {
+                        "create": [
+                          {
+                            "name": "variant",
+                            "value": "blue",
+                          },
+                        ],
+                      },
+                      "propsSpread": false,
+                    },
+                    {
+                      "importType": "ImportSpecifier",
+                      "imported": "Button",
+                      "local": "Button",
+                      "locationEndColumn": 19,
+                      "locationEndLine": 8,
+                      "locationStartColumn": 13,
+                      "locationStartLine": 8,
+                      "moduleName": "my-library",
+                      "name": "Button",
+                      "props": {
+                        "create": [
+                          {
+                            "name": "variant",
+                            "value": "yellow",
+                          },
+                        ],
+                      },
+                      "propsSpread": false,
                     },
                   ],
                 },
-                "propsSpread": false,
+                "path": "/mock/Component.tsx",
               },
-              {
-                "importType": "ImportSpecifier",
-                "imported": "Button",
-                "local": "Button",
-                "locationEndColumn": 19,
-                "locationEndLine": 8,
-                "locationStartColumn": 13,
-                "locationStartLine": 8,
-                "moduleName": "my-library",
-                "name": "Button",
-                "props": {
-                  "create": [
-                    {
-                      "name": "variant",
-                      "value": "yellow",
-                    },
-                  ],
-                },
-                "propsSpread": false,
-              },
-            ],
+            },
+          ],
+        ],
+        "results": [
+          {
+            "type": "return",
+            "value": undefined,
           },
-          "path": "Component.tsx",
-        },
+        ],
       }
-    `
-    );
+    `);
   });
 });

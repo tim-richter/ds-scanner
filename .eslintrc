@@ -23,6 +23,7 @@
         "ui/src/mocks/**/*"
       ]
     }],
+    "import/extensions": ["error", "ignorePackages", { "js": "always" }],
     "prettier/prettier": "error",
     "no-prototype-builtins": "off",
     "import/prefer-default-export": "off",
@@ -30,7 +31,8 @@
     "new-cap": "off",
     "no-underscore-dangle": "off",
     "react/function-component-definition": "off",
-    "jsx-a11y/label-has-associated-control": "off"
+    "jsx-a11y/label-has-associated-control": "off",
+    "react/require-default-props": "off"
   },
   "settings": {
     "import/parsers": {

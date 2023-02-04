@@ -18,9 +18,11 @@
     "types": [],
     "preserveSymlinks": true,
     "noUncheckedIndexedAccess": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    
   },
   "exclude": [
     "node_modules"
-  ]
+  ],
 }

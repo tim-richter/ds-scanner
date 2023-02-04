@@ -1,8 +1,10 @@
-import { setupWorker, rest } from 'msw';
+import React from 'react';
 import { handlers } from '../ui/src/mocks/handlers'
 import { initialize, mswDecorator } from 'msw-storybook-addon';
 import { QueryProvider } from '../ui/src/context/Query';
-import { worker } from '../ui/src/mocks/browser';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { routes } from '../ui/src/Router'
+import '../ui/src/main.css';
 
 initialize({
   onUnhandledRequest: ({ method, url }) => {
@@ -16,19 +18,21 @@ initialize({
   },
 })
 
-
 export const decorators = [
-  mswDecorator, 
-  (Story) => (
-    <QueryProvider>
-      <Story />
-    </QueryProvider>
-  ),
-  (Story) => (
-    <div data-theme="night">
-      <Story />
-    </div>
-  )
+  (Story, { parameters }) => {
+    const router = createMemoryRouter(routes, {
+      initialEntries: parameters.initialEntries || ['/'],
+    });
+
+    return (
+      <div data-theme="night">
+        <QueryProvider>
+          <RouterProvider router={router} />
+        </QueryProvider>
+      </div>
+    )
+  },
+  mswDecorator,
 ];
 
 export const parameters = {
@@ -39,5 +43,5 @@ export const parameters = {
       date: /Date$/,
     },
   },
-  msw: handlers
+  msw: handlers,
 }

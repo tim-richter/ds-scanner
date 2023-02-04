@@ -1,4 +1,3 @@
-const path = require('path');
 module.exports = {
   "stories": [
     "../ui/**/*.mdx",
@@ -13,8 +12,6 @@ module.exports = {
     "name": "@storybook/react-vite",
     "options": {}
   },
-  "docs": {
-    "autodocs": "tag"
-  },
+  "docs": {},
   "staticDirs": ["../ui/public"]
 }

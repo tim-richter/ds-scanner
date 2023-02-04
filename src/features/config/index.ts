@@ -46,7 +46,7 @@ const parseConfigFile = (config: any) => {
   return data;
 };
 
-export const getConfig = (configPath?: string) => {
+export const getConfig = (configPath?: string): ConfigSchema => {
   const configFile = readConfig(configPath);
   const data = parseConfigFile(configFile);
 
