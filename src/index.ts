@@ -1,4 +1,4 @@
-import { parseArguments } from './parseArguments.js';
+import { parseArguments } from './features/cli/parseArguments.js';
 import { start } from './start.js';
 
 const init = async () => {

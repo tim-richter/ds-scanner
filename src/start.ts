@@ -2,7 +2,7 @@ import path, { dirname } from 'path';
 import { fdir, PathsOutput } from 'fdir';
 import fs from 'fs-extra';
 import { fileURLToPath } from 'url';
-import { ParsedArgs } from './parseArguments.js';
+import { ParsedArgs } from './features/cli/parseArguments.js';
 import { getConfig } from './features/config/index.js';
 import { makeReport } from './features/report/index.js';
 import { startServer } from './features/server/index.js';

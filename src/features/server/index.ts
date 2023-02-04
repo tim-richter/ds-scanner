@@ -8,6 +8,10 @@ import { prisma } from '../../prisma.js';
 const filename = fileURLToPath(import.meta.url);
 const directory = dirname(filename);
 
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 const t = initTRPC.create();
 
 const appRouter = t.router({
@@ -25,11 +29,23 @@ const appRouter = t.router({
       return file;
     }),
   allFiles: t.procedure.query(async () => {
-    const files = await prisma.file.findMany({ include: { components: true } });
+    const files = await prisma.file.findMany({
+      include: { components: { include: { props: true } } },
+    });
 
     return files;
   }),
+  uniqueComponents: t.procedure.query(async () => {
+    type DistinctCount = Array<{ name: string; count: string }>;
+
+    const userIdCount =
+      (await prisma.$queryRaw`SELECT name, COUNT(name) AS count FROM Component GROUP BY name`) as DistinctCount;
+
+    return userIdCount;
+  }),
 });
+
+export type AppRouter = typeof appRouter;
 
 const app = express();
 
@@ -45,5 +61,3 @@ app.use(express.static(directory));
 export const startServer = () => {
   app.listen(5416);
 };
-
-export type AppRouter = typeof appRouter;

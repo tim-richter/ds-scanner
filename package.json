@@ -5,28 +5,31 @@
   "main": "dist/index.js",
   "bin": "bin/ds-scanner.js",
   "type": "module",
+  "keywords": ["design system", "analytics", "react"],
+  "author": "Tim Richter",
+  "license": "MIT",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
-    "build": "bin/build",
-    "test": "vitest",
+    "build": "bin/build.sh",
+    "ui:build": "vite build",
     "tsc": "tsc --noEmit --skipLibCheck",
+    "storybook": "storybook dev -p 6006",
+    "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:coverage:watch": "vitest watch --coverage",
     "test:debug": "ndb vitest",
-    "prepublishOnly": "pnpm run build",
-    "ui:build": "vite build",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepublishOnly": "pnpm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "msw": {
+    "workerDirectory": "ui/public"
+  },
   "dependencies": {
     "@prisma/client": "^4.8.0",
-    "@tanstack/react-query": "^4.20.4",
-    "@trpc/client": "^10.7.0",
-    "@trpc/react-query": "^10.7.0",
-    "@trpc/server": "^10.7.0",
+    "@tanstack/react-query": "^4.14.6",
+    "@trpc/client": "^10.0.0",
+    "@trpc/react-query": "^10.0.0",
+    "@trpc/server": "^10.0.0",
     "@typescript-eslint/typescript-estree": "^5.46.0",
     "@vitejs/plugin-react": "^3.0.0",
     "astray": "^1.1.1",
@@ -51,6 +54,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.19.1",
+    "@faker-js/faker": "^7.6.0",
     "@open-wc/building-rollup": "^2.2.1",
     "@storybook/addon-essentials": "^7.0.0-beta.15",
     "@storybook/addon-interactions": "^7.0.0-beta.15",
@@ -84,8 +88,10 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.31.11",
     "mock-fs": "^5.2.0",
     "msw": "^0.49.2",
     "msw-storybook-addon": "^1.6.3",
@@ -98,8 +104,5 @@
     "typescript": "^4.9.4",
     "vitest": "^0.26.2",
     "vitest-mock-extended": "^1.0.8"
-  },
-  "msw": {
-    "workerDirectory": "ui/public"
   }
 }

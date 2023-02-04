@@ -40,9 +40,12 @@ describe('scan', () => {
               },
             },
             "name": "Button",
-            "props": {
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+            ],
             "propsSpread": false,
           },
         ],
@@ -87,10 +90,16 @@ describe('scan', () => {
               },
             },
             "name": "Button",
-            "props": {
-              "data": "(Identifier)",
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+              {
+                "name": "data",
+                "value": "(Identifier)",
+              },
+            ],
             "propsSpread": false,
           },
         ],
@@ -135,9 +144,12 @@ describe('scan', () => {
               },
             },
             "name": "Button",
-            "props": {
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+            ],
             "propsSpread": true,
           },
         ],
@@ -178,9 +190,12 @@ describe('scan', () => {
               },
             },
             "name": "Button",
-            "props": {
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+            ],
             "propsSpread": true,
           },
         ],
@@ -223,9 +238,12 @@ describe('scan', () => {
               },
             },
             "name": "Button",
-            "props": {
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+            ],
             "propsSpread": true,
           },
         ],
@@ -268,10 +286,16 @@ describe('scan', () => {
               },
             },
             "name": "Button",
-            "props": {
-              "text": "name",
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+              {
+                "name": "text",
+                "value": "name",
+              },
+            ],
             "propsSpread": false,
           },
         ],
@@ -317,9 +341,12 @@ describe('scan', () => {
               },
             },
             "name": "MyLibrary.Button",
-            "props": {
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+            ],
             "propsSpread": true,
           },
         ],
@@ -354,9 +381,12 @@ describe('scan', () => {
               },
             },
             "name": "As",
-            "props": {
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+            ],
             "propsSpread": true,
           },
         ],
@@ -396,9 +426,12 @@ describe('scan', () => {
               },
             },
             "name": "mynamespace.Menu",
-            "props": {
-              "variant": "blue",
-            },
+            "props": [
+              {
+                "name": "variant",
+                "value": "blue",
+              },
+            ],
             "propsSpread": false,
           },
         ],
@@ -451,9 +484,12 @@ describe('report', () => {
                 },
               },
               "name": "Button",
-              "props": {
-                "variant": "blue",
-              },
+              "props": [
+                {
+                  "name": "variant",
+                  "value": "blue",
+                },
+              ],
               "propsSpread": false,
             },
             {
@@ -474,9 +510,12 @@ describe('report', () => {
                 },
               },
               "name": "Button",
-              "props": {
-                "variant": "yellow",
-              },
+              "props": [
+                {
+                  "name": "variant",
+                  "value": "yellow",
+                },
+              ],
               "propsSpread": false,
             },
           ],
@@ -522,6 +561,14 @@ describe('report', () => {
                 "locationStartLine": 7,
                 "moduleName": "my-library",
                 "name": "Button",
+                "props": {
+                  "create": [
+                    {
+                      "name": "variant",
+                      "value": "blue",
+                    },
+                  ],
+                },
                 "propsSpread": false,
               },
               {
@@ -534,6 +581,14 @@ describe('report', () => {
                 "locationStartLine": 8,
                 "moduleName": "my-library",
                 "name": "Button",
+                "props": {
+                  "create": [
+                    {
+                      "name": "variant",
+                      "value": "yellow",
+                    },
+                  ],
+                },
                 "propsSpread": false,
               },
             ],

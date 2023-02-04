@@ -28,7 +28,7 @@ interface Component {
       line: number;
     };
   };
-  props: Record<string, any>;
+  props: Array<{ name: string; value: any }>;
   propsSpread: boolean;
 }
 
@@ -93,7 +93,7 @@ function getInstanceInfo({ node, importInfo }: GetInstanceInfo): Component {
 
   const result: Component = {
     ...(importInfo !== undefined && { importInfo }),
-    props: {},
+    props: [],
     propsSpread: false,
     location: {
       start: node.name.loc.start,
@@ -109,7 +109,7 @@ function getInstanceInfo({ node, importInfo }: GetInstanceInfo): Component {
 
       const propValue = getPropValue(value as any);
 
-      result.props[propName.toString()] = propValue;
+      result.props.push({ name: propName.toString(), value: propValue });
     } else if (attribute.type === 'JSXSpreadAttribute') {
       result.propsSpread = true;
     }
@@ -220,6 +220,12 @@ export const makeReport = async (files: PathsOutput) => {
             locationEndLine: component.location.end.line,
             locationStartColumn: component.location.start.column,
             locationStartLine: component.location.start.line,
+            props: {
+              create: component.props.map((prop) => ({
+                name: prop.name,
+                value: prop.value,
+              })),
+            },
           })),
         },
       },

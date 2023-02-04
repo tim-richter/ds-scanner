@@ -1,12 +1,11 @@
 import yargs, { Arguments } from 'yargs';
-import { hideBin } from 'yargs/helpers';
 
 export type ParsedArgs = Arguments<{
   config?: string;
 }>;
 
 export const parseArguments = async () => {
-  const args = await yargs(hideBin(process.argv))
+  const args = await yargs(process.argv.slice(2))
     .command('start', 'start the scanning process')
     .option('config', {
       alias: 'c',
