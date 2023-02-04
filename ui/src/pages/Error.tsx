@@ -8,11 +8,11 @@ export const Error = () => {
   return (
     <div
       id="error-page"
-      className="h-screen flex justify-center items-center flex-col"
+      className="flex h-screen flex-col items-center justify-center"
     >
-      <h1 className="font-bold text-5xl mb-8">Oops!</h1>
+      <h1 className="mb-8 text-5xl font-bold">Oops!</h1>
       <p>Sorry, an unexpected error has occurred.</p>
-      <p className="m-4 px-8 py-3 border-red-500/70 bg-red-500/10 text-red-500 font-bold border-2 rounded-lg">
+      <p className="m-4 rounded-lg border-2 border-red-500/70 bg-red-500/10 px-8 py-3 font-bold text-red-500">
         <i>{error.statusText || error.message}</i>
       </p>
     </div>
