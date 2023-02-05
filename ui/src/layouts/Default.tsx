@@ -10,8 +10,10 @@ export const Default = () => (
       <HeaderLink to="/components">Components</HeaderLink>
     </Header>
 
-    <div className="h-[calc(100vh-64px)]">
-      <Outlet />
+    <div className="min-h-[calc(100vh-64px)]">
+      <div className="m-auto mt-12 max-w-7xl">
+        <Outlet />
+      </div>
     </div>
   </>
 );

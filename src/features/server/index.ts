@@ -3,6 +3,7 @@ import * as trpcExpress from '@trpc/server/adapters/express';
 import express from 'express';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { z } from 'zod';
 import { prisma } from '../../prisma.js';
 
 const filename = fileURLToPath(import.meta.url);
@@ -35,14 +36,20 @@ const appRouter = t.router({
 
     return files;
   }),
-  uniqueComponents: t.procedure.query(async () => {
-    type DistinctCount = Array<{ name: string; count: string }>;
+  uniqueComponents: t.procedure
+    .input(z.object({ limit: z.number().optional() }).optional())
+    .query(async (req) => {
+      const { input } = req;
 
-    const userIdCount =
-      (await prisma.$queryRaw`SELECT name, COUNT(name) AS count FROM Component GROUP BY name`) as DistinctCount;
+      type DistinctCount = Array<{ name: string; count: string }>;
 
-    return userIdCount;
-  }),
+      const userIdCount =
+        (await prisma.$queryRaw`SELECT name, COUNT(name) AS count FROM Component GROUP BY name ${
+          input?.limit ? `LIMIT ${input.limit}` : ''
+        }`) as DistinctCount;
+
+      return userIdCount;
+    }),
 });
 
 export type AppRouter = typeof appRouter;

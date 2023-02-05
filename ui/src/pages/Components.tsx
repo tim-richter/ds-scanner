@@ -1,3 +1,3 @@
 import React from 'react';
 
-export const Components = () => <div>Components</div>;
+export const Components = () => <h1>Components</h1>;

@@ -10,10 +10,12 @@ const uniqueComponents: RouterOutput['uniqueComponents'] = [
   'Accordion',
   'Drawer',
   'Checkbox',
+  'Drawer',
+  'Input',
 ]
   .map((name) => ({
     name,
-    count: faker.random.numeric(2).toString(),
+    count: faker.random.numeric(3).toString(),
   }))
   .sort((a, b) => {
     const countA = Number(a.count);
@@ -26,7 +28,24 @@ const uniqueComponents: RouterOutput['uniqueComponents'] = [
   });
 
 export const handlers: RestHandler<any>[] = [
-  rest.get('http://localhost:5416/trpc/uniqueComponents', (req, res, ctx) =>
-    res(ctx.json(jsonRpcSuccessResponse(uniqueComponents)))
+  rest.get(
+    'http://localhost:5416/trpc/uniqueComponents',
+    async (req, res, ctx) => {
+      const inputParams = req.url.searchParams.get('input');
+
+      if (inputParams) {
+        const parsedParams: { 0: { limit: number } } = JSON.parse(inputParams);
+
+        return res(
+          ctx.json(
+            jsonRpcSuccessResponse(
+              uniqueComponents.splice(-parsedParams[0].limit)
+            )
+          )
+        );
+      }
+
+      return res(ctx.json(jsonRpcSuccessResponse(uniqueComponents)));
+    }
   ),
 ];

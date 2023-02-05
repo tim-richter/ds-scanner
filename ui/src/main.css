@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply text-white bg-background bg-backgroundBlur bg-no-repeat;
+}
+
+@layer base {
+  h1 {
+    @apply text-5xl font-bold mb-8;
+  }
+  h2 {
+    @apply text-2xl font-bold;
+  }
+  h3 {
+    @apply font-bold;
+  }
+  p {
+    @apply mb-4;
+  }
+}

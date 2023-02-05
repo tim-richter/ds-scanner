@@ -14,7 +14,7 @@ export const HeaderLink: React.FC<HeaderLinkProps> = ({ to, children }) => (
       clsx(
         'py-1 px-3',
         isActive &&
-          'font-bold underline decoration-green-300 decoration-2 underline-offset-2'
+          'font-bold underline decoration-primary decoration-2 underline-offset-2'
       )
     }
   >
