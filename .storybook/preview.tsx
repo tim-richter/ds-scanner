@@ -25,11 +25,9 @@ export const decorators = [
     });
 
     return (
-      <div data-theme="night">
-        <QueryProvider>
-          <RouterProvider router={router} />
-        </QueryProvider>
-      </div>
+      <QueryProvider>
+        <RouterProvider router={router} />
+      </QueryProvider>
     )
   },
   mswDecorator,

@@ -44,7 +44,7 @@ export const Home = () => {
       <h1>Dashboard</h1>
 
       <div className="my-16 max-h-96">
-        <div className="flex items-end justify-between">
+        <div className="mb-2 flex items-end justify-between">
           <h2>Component Instances found in Projects</h2>
 
           <Link to="/components">

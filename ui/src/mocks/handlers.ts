@@ -35,14 +35,11 @@ export const handlers: RestHandler<any>[] = [
 
       if (inputParams) {
         const parsedParams: { 0: { limit: number } } = JSON.parse(inputParams);
-
-        return res(
-          ctx.json(
-            jsonRpcSuccessResponse(
-              uniqueComponents.splice(-parsedParams[0].limit)
-            )
-          )
+        const limitedComponents = uniqueComponents.slice(
+          -parsedParams[0].limit
         );
+
+        return res(ctx.json(jsonRpcSuccessResponse(limitedComponents)));
       }
 
       return res(ctx.json(jsonRpcSuccessResponse(uniqueComponents)));
