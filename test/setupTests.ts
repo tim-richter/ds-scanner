@@ -7,6 +7,10 @@ vi.mock('../src/prisma', () => ({
   prisma: mockDeep<PrismaClient>(),
 }));
 
+vi.mock('../src/features/server', () => ({
+  startServer: () => null,
+}));
+
 export const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;
 
 beforeEach(() => {

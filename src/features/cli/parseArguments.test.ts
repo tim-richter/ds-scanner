@@ -4,7 +4,7 @@ import { parseArguments } from './parseArguments.js';
 it('should parse the start command', async () => {
   process.argv = [
     '/usr/local/bin/node',
-    '/Users/mjr/work/node/process-args.js',
+    '/Users/trichter/work/node/ds-scanner.js',
     'start',
   ];
 
@@ -16,7 +16,7 @@ it('should parse the start command', async () => {
 it('should parse the start command with the config option', async () => {
   process.argv = [
     '/usr/local/bin/node',
-    '/Users/mjr/work/node/process-args.js',
+    '/Users/trichter/work/node/ds-scanner.js',
     'start',
     '-c=./path/to/config',
   ];

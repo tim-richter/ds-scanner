@@ -1,11 +1,13 @@
 import { parseArguments } from './features/cli/parseArguments.js';
 import { start } from './start.js';
+import { reportError } from './utils/error.js';
 
-const init = async () => {
+export const init = async () => {
   const parsedArgs = await parseArguments();
 
   if (parsedArgs.command === 'start') {
-    await start(parsedArgs.args);
+    return start(parsedArgs.args);
   }
+
+  reportError({ message: 'No command found.' });
 };
-init();

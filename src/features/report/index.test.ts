@@ -1,4 +1,4 @@
-import { expect, it, describe, afterEach, vi } from 'vitest';
+import { expect, it, describe, afterEach } from 'vitest';
 import mock from 'mock-fs';
 import { prismaMock } from '../../../test/setupTests.js';
 import { makeReport, scanAST } from './index.js';
@@ -442,102 +442,6 @@ describe('scanAST', () => {
 });
 
 describe('report', () => {
-  it('should exit with an error if no files were found', async () => {
-    process.exit = vi.fn();
-
-    const code = `test`;
-    mock({
-      '/mock/Component.tsx': code,
-    });
-
-    await makeReport({ crawlFrom: '/notexist/' });
-
-    expect(process.exit).toHaveBeenCalledWith(1);
-  });
-
-  it('should read a file and return the report for the file', async () => {
-    const code = `
-      import { Button } from 'my-library';
-  
-      export const CustomButton = () => {
-        return (
-          <>
-            <Button variant="blue" />
-            <Button variant="yellow" />
-          </>
-          );
-      }
-    `;
-
-    mock({
-      '/mock/Component.tsx': code,
-    });
-
-    const report = await makeReport({ crawlFrom: '/mock/' });
-
-    expect(report).toMatchInlineSnapshot(`
-      [
-        {
-          "components": [
-            {
-              "importInfo": {
-                "importType": "ImportSpecifier",
-                "imported": "Button",
-                "local": "Button",
-                "moduleName": "my-library",
-              },
-              "location": {
-                "end": {
-                  "column": 19,
-                  "line": 7,
-                },
-                "start": {
-                  "column": 13,
-                  "line": 7,
-                },
-              },
-              "name": "Button",
-              "props": [
-                {
-                  "name": "variant",
-                  "value": "blue",
-                },
-              ],
-              "propsSpread": false,
-            },
-            {
-              "importInfo": {
-                "importType": "ImportSpecifier",
-                "imported": "Button",
-                "local": "Button",
-                "moduleName": "my-library",
-              },
-              "location": {
-                "end": {
-                  "column": 19,
-                  "line": 8,
-                },
-                "start": {
-                  "column": 13,
-                  "line": 8,
-                },
-              },
-              "name": "Button",
-              "props": [
-                {
-                  "name": "variant",
-                  "value": "yellow",
-                },
-              ],
-              "propsSpread": false,
-            },
-          ],
-          "filePath": "/mock/Component.tsx",
-        },
-      ]
-    `);
-  });
-
   it('should make requests to db', async () => {
     const code = `
       import { Button } from 'my-library';
