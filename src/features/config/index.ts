@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 const configSchema = z.object({
   crawlFrom: z.string(),
+  baseSystem: z.array(z.string()).optional(),
 });
 
 export type ConfigSchema = z.infer<typeof configSchema>;

@@ -1,11 +1,12 @@
-import { fdir, PathsOutput } from 'fdir';
+import { ExcludeFn, fdir, PathsOutput } from 'fdir';
 
 const DEFAULT_GLOBS = ['**/!(*.test|*.spec).@(js|ts)?(x)'];
 
-export const scan = (crawlFrom: string) => {
+export const scan = (crawlFrom: string, exclude?: ExcludeFn) => {
   const globs = DEFAULT_GLOBS;
 
   const files = new fdir()
+    .exclude(exclude || (() => false))
     .glob(...globs)
     .withFullPaths()
     .crawl(crawlFrom)

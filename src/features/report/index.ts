@@ -199,11 +199,15 @@ export function scanAST({ code, filePath }: ScanArgs): ScanResult {
 }
 
 export const makeReport = async (config: ConfigSchema) => {
-  const files = scan(config.crawlFrom);
+  const filesWithoutBaseSystem = scan(
+    config.crawlFrom,
+    (dirName, dirPath) =>
+      config.baseSystem?.some((path) => dirPath.includes(path)) || false
+  );
 
   const report: Array<Record<string, any>> = [];
 
-  files.forEach(async (file) => {
+  filesWithoutBaseSystem.forEach(async (file) => {
     const code = fs.readFileSync(file, 'utf8');
 
     const scannedCode = scanAST({ code, filePath: file });

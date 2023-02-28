@@ -69,12 +69,16 @@ describe('should parse the config file and throw errors when structure is incorr
 
 it('should return data from config file', () => {
   mock({
-    'config.json': JSON.stringify({ crawlFrom: '.' }),
+    'config.json': JSON.stringify({
+      crawlFrom: '.',
+      baseSystem: ['./design-system'],
+    }),
   });
 
   const result = getConfig('config.json');
 
   expect(result).toEqual({
     crawlFrom: '.',
+    baseSystem: ['./design-system'],
   });
 });

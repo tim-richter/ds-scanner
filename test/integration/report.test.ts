@@ -104,3 +104,80 @@ it('should create a empty report', async () => {
     ]
   `);
 });
+
+it('should exclude baseSystem paths', async () => {
+  process.exit = vi.fn();
+  process.argv = [
+    '/usr/local/bin/node',
+    '/Users/trichter/work/node/ds-scanner.js',
+    'start',
+  ];
+  mock({
+    'ds-scanner.config.json': JSON.stringify({
+      crawlFrom: '.',
+      baseSystem: ['excluded-project'],
+    }),
+    'some-project': {
+      'Button.tsx': `
+      import { Button } from 'my-library';
+  
+      export const CustomButton = () => {
+        return <Button variant="blue" />;
+      }
+    `,
+    },
+    'excluded-project': {
+      'Accordion.tsx': `
+      import { Accordion } from 'my-library';
+  
+      export const Accordion = () => {
+        return <Accordion variant="blue" />;
+      }
+    `,
+    },
+  });
+  vi.spyOn(fs, 'writeJSON').mockImplementation(() => null);
+  const mockedFs = fs as unknown as DeepMockProxy<typeof fs>;
+
+  await init();
+
+  expect(mockedFs.writeJSON).toHaveBeenCalledTimes(1);
+  expect(mockedFs.writeJSON.mock.calls[0]).toMatchInlineSnapshot(`
+    [
+      "/home/tim/code/personal/ds-scanner-mono/src/scan-data.json",
+      [
+        {
+          "components": [
+            {
+              "importInfo": {
+                "importType": "ImportSpecifier",
+                "imported": "Button",
+                "local": "Button",
+                "moduleName": "my-library",
+              },
+              "location": {
+                "end": {
+                  "column": 22,
+                  "line": 5,
+                },
+                "start": {
+                  "column": 16,
+                  "line": 5,
+                },
+              },
+              "name": "Button",
+              "props": [
+                {
+                  "name": "variant",
+                  "value": "blue",
+                },
+              ],
+              "propsSpread": false,
+            },
+          ],
+          "filePath": "/home/tim/code/personal/ds-scanner-mono/some-project/Button.tsx",
+        },
+      ],
+    ]
+  `);
+});
