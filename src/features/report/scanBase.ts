@@ -1,33 +1,25 @@
-import ts from 'typescript';
+/* eslint-disable no-restricted-syntax */
 import fs from 'fs-extra';
 import path from 'path';
 import { Project } from 'ts-morph';
 
-export const scanBase = (filePath: string) => {
+export const scanBase = (filePath: string, basePath: string) => {
   const fName = path.resolve(filePath);
 
   if (!fs.existsSync(fName)) {
     throw new Error(`The file ${fName} does not exist`);
   }
 
-  const project = new Project();
+  const project = new Project({
+    skipFileDependencyResolution: true,
+    skipAddingFilesFromTsConfig: true,
+  });
 
-  project.addSourceFilesAtPaths('**/*.ts');
-  const mainFile = project.getSourceFileOrThrow(filePath);
+  project.addSourceFilesAtPaths(`${basePath}/**/*.{js,jsx,ts,tsx}`);
+  const mainFile = project.getSourceFileOrThrow(fName);
 
-  const program = ts.createProgram([fName], { allowJs: true });
-  const checker = program.getTypeChecker();
-  const sourceFile = program.getSourceFile(fName);
-
-  if (!sourceFile) return [];
-
-  const exportSymbol = checker.getSymbolAtLocation(sourceFile?.getChildAt(0));
-
-  // @ts-ignore see: https://stackoverflow.com/questions/62865648/how-should-i-get-common-js-exports-with-the-typescript-compiler-api
-  const exps = checker.getExportsOfModule(
-    // @ts-ignore
-    exportSymbol || sourceFile.symbol
-  );
+  const exps = [];
+  for (const [name] of mainFile.getExportedDeclarations()) exps.push(name);
 
   return exps;
 };
